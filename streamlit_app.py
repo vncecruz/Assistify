@@ -26,10 +26,6 @@ responses = {
     "strongly negative": ["We’re really sorry to hear that. 😞 Please contact support, and we’ll assist you immediately."],
 }
 
-# Streamlit app setup
-st.title("Sentiment Analysis Chatbot")
-st.sidebar.header("Chatbot Settings")
-
 # Function to greet the user
 def greet_user(name):
     return f"Hello, {name}! How can I assist you today?"
@@ -44,27 +40,27 @@ def generate_response(user_input, user_name):
 if "conversation_history" not in st.session_state:
     st.session_state["conversation_history"] = []
 
-# User name input
-user_name = st.sidebar.text_input("Enter your name", "Guest")
+# Title
+st.title("Assistify 🛒")
 
-# Greet user if name provided
-if user_name:
-    st.write(greet_user(user_name))
-
-# User message input
-user_input = st.text_input("You:", "")
-
-# Generate response on button click
-if st.button("Send"):
-    if user_input.strip():
-        response = generate_response(user_input, user_name)
-        # Save the interaction in conversation history
-        st.session_state["conversation_history"].append({"user": user_input, "bot": response})
-    else:
-        st.warning("Please enter a message.")
-
-# Display conversation history with indentation
-st.write("### Conversation History")
+# Chat history display (top of the screen)
+st.write("### Chat History")
 for turn in st.session_state["conversation_history"]:
     st.markdown(f"**You:** {turn['user']}")
     st.markdown(f"<div style='margin-left: 20px;'>**Chatbot:** {turn['bot']}</div>", unsafe_allow_html=True)
+
+# Divider for better UI separation
+st.markdown("---")
+
+# User input (bottom of the screen)
+user_input = st.text_input("Type your message here:", key="user_input")
+if st.button("Send"):
+    if user_input.strip():
+        # Generate response
+        response = generate_response(user_input, "Guest")  # Replace "Guest" with user_name if available
+        # Update conversation history
+        st.session_state["conversation_history"].append({"user": user_input, "bot": response})
+        # Clear user input box
+        st.session_state.user_input = ""
+    else:
+        st.warning("Please enter a message.")
