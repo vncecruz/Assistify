@@ -26,44 +26,35 @@ responses = {
     "strongly negative": ["We’re really sorry to hear that. 😞 Please contact support, and we’ll assist you immediately."],
 }
 
-# Function to greet the user
-def greet_user(name):
-    return f"Hello, {name}! How can I assist you today?"
-
 # Function to generate a response based on sentiment intensity
 def generate_response(user_input, user_name):
     sentiment = detect_sentiment_intensity(user_input)
     response_options = responses.get(sentiment, [f"I'm here to help, {user_name}!"])
     return random.choice(response_options)
 
-# Initialize session state variables
+# Initialize session state
 if "conversation_history" not in st.session_state:
     st.session_state["conversation_history"] = []
-
-if "user_input" not in st.session_state:
-    st.session_state["user_input"] = ""
 
 # Title
 st.title("Assistify 🛒")
 
-# Chat history display (top of the screen)
-st.write("### Chat History")
 for turn in st.session_state["conversation_history"]:
     st.markdown(f"**You:** {turn['user']}")
     st.markdown(f"<div style='margin-left: 20px;'>**Chatbot:** {turn['bot']}</div>", unsafe_allow_html=True)
 
-# Divider for better UI separation
+# Divider for UI separation
 st.markdown("---")
 
 # User input (bottom of the screen)
-user_input = st.text_input("Type your message here:", value=st.session_state["user_input"], key="user_input")
+user_input = st.text_input("Type your message here:", key="user_input")
 if st.button("Send"):
     if user_input.strip():
         # Generate response
-        response = generate_response(user_input, "Guest")  # Replace "Guest" with user_name if available
+        response = generate_response(user_input, "Guest")
         # Update conversation history
         st.session_state["conversation_history"].append({"user": user_input, "bot": response})
-        # Clear user input
-        st.session_state["user_input"] = ""
+        # Clear the text input box
+        st.session_state["user_input"] = ""  # Widget state is reset safely
     else:
         st.warning("Please enter a message.")
