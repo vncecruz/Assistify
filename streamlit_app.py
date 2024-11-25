@@ -27,7 +27,7 @@ responses = {
 }
 
 # Streamlit app setup
-st.title("Sentiment Analysis Chatbot")
+st.title("Assistify 🛒")
 st.sidebar.header("Chatbot Settings")
 
 # Function to greet the user
@@ -69,4 +69,4 @@ if st.button("Send"):
 st.write("### Conversation History")
 for turn in st.session_state["conversation_history"]:
     st.write(f"**You:** {turn['user']}")
-    st.write(f"**Chatbot:** {turn['bot']}")
+    st.write(f"**Assistify:** {turn['bot']}")
