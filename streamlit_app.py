@@ -27,7 +27,7 @@ responses = {
 }
 
 # Streamlit app setup
-st.title("Assistify 🛒")
+st.title("Sentiment Analysis Chatbot")
 st.sidebar.header("Chatbot Settings")
 
 # Function to greet the user
@@ -60,13 +60,11 @@ if st.button("Send"):
         response = generate_response(user_input, user_name)
         # Save the interaction in conversation history
         st.session_state["conversation_history"].append({"user": user_input, "bot": response})
-        # Display chatbot response
-        st.write(f"**Chatbot:** {response}")
     else:
         st.warning("Please enter a message.")
 
-# Display conversation history
+# Display conversation history with indentation
 st.write("### Conversation History")
 for turn in st.session_state["conversation_history"]:
-    st.write(f"**You:** {turn['user']}")
-    st.write(f"**Assistify:** {turn['bot']}")
+    st.markdown(f"**You:** {turn['user']}")
+    st.markdown(f"<div style='margin-left: 20px;'>**Chatbot:** {turn['bot']}</div>", unsafe_allow_html=True)
