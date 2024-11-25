@@ -36,9 +36,12 @@ def generate_response(user_input, user_name):
     response_options = responses.get(sentiment, [f"I'm here to help, {user_name}!"])
     return random.choice(response_options)
 
-# Initialize conversation history in Streamlit session state
+# Initialize session state variables
 if "conversation_history" not in st.session_state:
     st.session_state["conversation_history"] = []
+
+if "user_input" not in st.session_state:
+    st.session_state["user_input"] = ""
 
 # Title
 st.title("Assistify 🛒")
@@ -53,14 +56,14 @@ for turn in st.session_state["conversation_history"]:
 st.markdown("---")
 
 # User input (bottom of the screen)
-user_input = st.text_input("Type your message here:", key="user_input")
+user_input = st.text_input("Type your message here:", value=st.session_state["user_input"], key="user_input")
 if st.button("Send"):
     if user_input.strip():
         # Generate response
         response = generate_response(user_input, "Guest")  # Replace "Guest" with user_name if available
         # Update conversation history
         st.session_state["conversation_history"].append({"user": user_input, "bot": response})
-        # Clear user input box
-        st.session_state.user_input = ""
+        # Clear user input
+        st.session_state["user_input"] = ""
     else:
         st.warning("Please enter a message.")
