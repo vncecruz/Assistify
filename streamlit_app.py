@@ -48,13 +48,14 @@ st.markdown("---")
 
 # User input (bottom of the screen)
 user_input = st.text_input("Type your message here:", key="user_input")
+
 if st.button("Send"):
     if user_input.strip():
         # Generate response
         response = generate_response(user_input, "Guest")
         # Update conversation history
         st.session_state["conversation_history"].append({"user": user_input, "bot": response})
-        # Clear the text input box
-        st.session_state["user_input"] = ""  # Widget state is reset safely
+        # Clear the text input widget by using st.session_state directly
+        st.session_state["user_input"] = ""  # Widget key ensures safe reset
     else:
         st.warning("Please enter a message.")
