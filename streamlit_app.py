@@ -66,4 +66,4 @@ if st.button("Send"):
 # Display conversation history with indentation
 for turn in st.session_state["conversation_history"]:
     st.markdown(f"**You:** {turn['user']}")
-    st.markdown(f"<div style='margin-left: 20px;'>**Assistify:** {turn['bot']}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='margin-left: 20px;'>Assistify: {turn['bot']}</div>", unsafe_allow_html=True)
