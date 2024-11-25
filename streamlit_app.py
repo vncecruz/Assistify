@@ -1,56 +1,72 @@
 import streamlit as st
-from openai import OpenAI
+from textblob import TextBlob
+import random
 
-# Show title and description.
-st.title("💬 Chatbot")
-st.write(
-    "This is a simple chatbot that uses OpenAI's GPT-3.5 model to generate responses. "
-    "To use this app, you need to provide an OpenAI API key, which you can get [here](https://platform.openai.com/account/api-keys). "
-    "You can also learn how to build this app step by step by [following our tutorial](https://docs.streamlit.io/develop/tutorials/llms/build-conversational-apps)."
-)
+# Function to detect sentiment with intensity
+def detect_sentiment_intensity(message):
+    analysis = TextBlob(message)
+    polarity = analysis.sentiment.polarity
+    if polarity > 0.5:
+        return "strongly positive"
+    elif polarity > 0:
+        return "mildly positive"
+    elif polarity < -0.5:
+        return "strongly negative"
+    elif polarity < 0:
+        return "mildly negative"
+    else:
+        return "neutral"
 
-# Ask user for their OpenAI API key via `st.text_input`.
-# Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
-# via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
-openai_api_key = st.text_input("OpenAI API Key", type="password")
-if not openai_api_key:
-    st.info("Please add your OpenAI API key to continue.", icon="🗝️")
-else:
+# Define responses with emojis for each sentiment intensity
+responses = {
+    "strongly positive": ["That's fantastic! 😊 We’re thrilled you’re happy with our service."],
+    "mildly positive": ["Thanks for your feedback! 😊 Glad to know you’re satisfied."],
+    "neutral": ["Thanks for reaching out. 😊 Let us know if you have any questions!"],
+    "mildly negative": ["We apologize if things didn’t meet your expectations. 😟 How can we help?"],
+    "strongly negative": ["We’re really sorry to hear that. 😞 Please contact support, and we’ll assist you immediately."],
+}
 
-    # Create an OpenAI client.
-    client = OpenAI(api_key=openai_api_key)
+# Streamlit app setup
+st.title("Sentiment Analysis Chatbot")
+st.sidebar.header("Chatbot Settings")
 
-    # Create a session state variable to store the chat messages. This ensures that the
-    # messages persist across reruns.
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+# Function to greet the user
+def greet_user(name):
+    return f"Hello, {name}! How can I assist you today?"
 
-    # Display the existing chat messages via `st.chat_message`.
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+# Function to generate a response based on sentiment intensity
+def generate_response(user_input, user_name):
+    sentiment = detect_sentiment_intensity(user_input)
+    response_options = responses.get(sentiment, [f"I'm here to help, {user_name}!"])
+    return random.choice(response_options)
 
-    # Create a chat input field to allow the user to enter a message. This will display
-    # automatically at the bottom of the page.
-    if prompt := st.chat_input("What is up?"):
+# Initialize conversation history in Streamlit session state
+if "conversation_history" not in st.session_state:
+    st.session_state["conversation_history"] = []
 
-        # Store and display the current prompt.
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
+# User name input
+user_name = st.sidebar.text_input("Enter your name", "Guest")
 
-        # Generate a response using the OpenAI API.
-        stream = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
-            ],
-            stream=True,
-        )
+# Greet user if name provided
+if user_name:
+    st.write(greet_user(user_name))
 
-        # Stream the response to the chat using `st.write_stream`, then store it in 
-        # session state.
-        with st.chat_message("assistant"):
-            response = st.write_stream(stream)
-        st.session_state.messages.append({"role": "assistant", "content": response})
+# User message input
+user_input = st.text_input("You:", "")
+
+# Generate response on button click
+if st.button("Send"):
+    if user_input.strip():
+        response = generate_response(user_input, user_name)
+        # Save the interaction in conversation history
+        st.session_state["conversation_history"].append({"user": user_input, "bot": response})
+        # Display chatbot response
+        st.write(f"**Chatbot:** {response}")
+    else:
+        st.warning("Please enter a message.")
+
+# Display conversation history
+st.write("### Conversation History")
+for turn in st.session_state["conversation_history"]:
+    st.write(f"**You:** {turn['user']}")
+    st.write(f"**Chatbot:** {turn['bot']}")
